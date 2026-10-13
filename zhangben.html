@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>小组记账</title>
+<style>
+body{
+  background-color: #ececec;
+}
+h1{
+  color:#222;
+  text-align:center;
+}
+.box{
+  background-color:white;
+  margin:15px 18px;
+  padding:12px;
+}
+h2{
+  color:#333;
+}
+input, select{
+  border:1px solid #999;
+}
+button{
+  background-color:#3e74b3;
+  color:white;
+  border:none;
+}
+table{
+  width:100%;
+  border:1px solid #bbb;
+}
+th,td{
+  border:1px solid #bbb;
+  text-align:center;
+}
+th{
+  background-color:#e7e7e7;
+}
+.green{
+  color:#007020;
+}
+.red{
+  color:#c82423;
+}
+</style>
+</head>
+<body>
+
+<h1>小组记账本</h1>
+
+<div class="box">
+<h2>本月统计</h2>
+<p>总收入：¥1800</p >
+<p>总支出：¥1120</p >
+<p>结余：¥680</p >
+</div>
+
+<div class="box">
+<h2>添加记录</h2>
+<p>日期：<input type="date"></p >
+<p>项目：<input type="text" placeholder="比如吃饭"></p >
+<p>类型：
+<select>
+<option>支出</option>
+<option>收入</option>
+</select>
+</p >
+<p>金额：<input type="number"></p >
+<p><button>保存</button></p >
+</div>
+
+<div class="box">
+<h2>记录列表</h2>
+<table>
+<tr>
+<th>日期</th>
+<th>事项</th>
+<th>类型</th>
+<th>金额</th>
+</tr>
+<tr>
+<td>10‑03</td>
+<td>超市</td>
+<td class="red">支出</td>
+<td>95</td>
+</tr>
+<tr>
+<td>10‑07</td>
+<td>家教</td>
+<td class="green">收入</td>
+<td>400</td>
+</tr>
+<tr>
+<td>10‑10</td>
+<td>奶茶</td>
+<td class="red">支出</td>
+<td>32</td>
+</tr>
+</table>
+</div>
+
+</body>
+</html>
