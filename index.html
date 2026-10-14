@@ -3,19 +3,34 @@
 <head>
 <meta charset="utf-8">
 <title>菜鸟教程(runoob.com)</title>
-<style>
-h1{color:aqua；}
-h2{color:lightpink；}
+<style>h1{color:aqua;}
+*{box-sizing: border-box;
+margin: 0;
+padding: 0;}
+h2{color:lightpink;}
 body{background-color:khaki;}
+.page-wrap{max-width: 700px;
+margin: 40px auto;
+padding:0 24px;}
+.header-box{margin-bottom: 36px;
+padding-bottom: 16px;
+border-bottom: 1px solid#c9bc9b;}
+.card-box{background-color: aquamarine;
+padding: 18px;
+margin-bottom: 20px;
+border-radius: 12px;}
 </style>
 </head>
 <body>
+<div class="page-wrap">
+    <div class="header-box">
 <h1>你好，我是李月涵</h1>
 <p>我的第一个段落。</p>
-
+</div>
+<div class="card-box">
 <h2>个人介绍</h2>
 <p>数据科学与大数据技术专业，MBTI是INTP。</p>
-
+</div>
 <h2>学习方向</h2>
 <p>学习数据分析、Python相关内容。</p>
 
@@ -29,6 +44,6 @@ body{background-color:khaki;}
 <p>
 <a href="https://www.bilibili.com/" target="_blank">哔哩哔哩</a>
 </p>
-
+</div>
 </body>
 </html>
