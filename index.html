@@ -1,49 +1,271 @@
 <!DOCTYPE html>
-<html>
+<html lang="zh-CN">
 <head>
 <meta charset="utf-8">
-<title>菜鸟教程(runoob.com)</title>
-<style>h1{color:aqua;}
-*{box-sizing: border-box;
-margin: 0;
-padding: 0;}
-h2{color:lightpink;}
-body{background-color:khaki;}
-.page-wrap{max-width: 700px;
-margin: 40px auto;
-padding:0 24px;}
-.header-box{margin-bottom: 36px;
-padding-bottom: 16px;
-border-bottom: 1px solid#c9bc9b;}
-.card-box{background-color: aquamarine;
-padding: 18px;
-margin-bottom: 20px;
-border-radius: 12px;}
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>李月涵 · 个人主页</title>
+<style>
+  :root{
+    --bg: #f4f5f7;            /* 浅灰柔和背景 */
+    --card: #ffffff;
+    --ink: #2c3138;
+    --ink-soft: #626a76;
+    --navy: #12325c;          /* 深蓝色标题 */
+    --navy-light: #1f4f8a;
+    --line: #e4e7ed;
+  }
+
+  *{
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  html{ scroll-behavior: smooth; }
+
+  body{
+    background-color: var(--bg);
+    color: var(--ink);
+    font-family: "PingFang SC", "Microsoft YaHei", "Helvetica Neue", Arial, sans-serif;
+    font-size: 16px;
+    line-height: 1.8;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ============ 导航栏 ============ */
+  .site-nav{
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background-color: rgba(255, 255, 255, 0.92);
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid var(--line);
+  }
+  .nav-inner{
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 0 24px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+  }
+  .nav-brand{
+    color: var(--navy);
+    font-size: 17px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-decoration: none;
+    white-space: nowrap;
+  }
+  .nav-links{
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    list-style: none;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .nav-links::-webkit-scrollbar{ display: none; }
+  .nav-links a{
+    display: block;
+    padding: 6px 12px;
+    border-radius: 999px;
+    color: var(--ink-soft);
+    font-size: 14px;
+    text-decoration: none;
+    white-space: nowrap;
+    transition: color .2s, background-color .2s;
+  }
+  .nav-links a:hover,
+  .nav-links a:focus{
+    color: var(--navy);
+    background-color: #eef2f9;
+  }
+
+  /* ============ 页面主体（居中） ============ */
+  .page-wrap{
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 44px 24px 64px;
+  }
+
+  .header-box{
+    margin-bottom: 28px;
+    padding-bottom: 22px;
+    border-bottom: 1px solid var(--line);
+  }
+  h1{
+    color: var(--navy);
+    font-size: 32px;
+    line-height: 1.4;
+    letter-spacing: 0.5px;
+  }
+  .header-box p{
+    margin-top: 8px;
+    color: var(--ink-soft);
+    font-size: 15px;
+  }
+
+  /* 卡片 */
+  .card-box{
+    background-color: var(--card);
+    padding: 22px 24px;
+    margin-bottom: 18px;
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04);
+    scroll-margin-top: 76px;
+  }
+  .card-box > p + h2{ margin-top: 18px; }
+
+  h2{
+    color: var(--navy);
+    font-size: 19px;
+    font-weight: 600;
+    line-height: 1.6;
+  }
+  h2 + p{ margin-top: 8px; }
+  .card-box p{ color: var(--ink-soft); }
+
+  /* 猫咪照片 */
+  .photo-frame{
+    margin-top: 14px;
+  }
+  .cat-photo{
+    display: block;
+    width: 300px;
+    max-width: 100%;
+    height: auto;
+    border-radius: 16px;
+    border: 1px solid var(--line);
+    box-shadow: 0 6px 18px rgba(16, 24, 40, 0.08);
+  }
+  .photo-fallback{
+    display: none;
+    width: 300px;
+    max-width: 100%;
+    height: 200px;
+    border-radius: 16px;
+    border: 1px dashed #c8cfdb;
+    background-color: #f7f8fb;
+    color: #98a1b0;
+    font-size: 13px;
+    text-align: center;
+    align-items: center;
+    justify-content: center;
+    padding: 0 20px;
+  }
+  .photo-note{
+    margin-top: 10px;
+    font-size: 13px;
+    color: #98a1b0;
+  }
+
+  /* 链接 */
+  .link-list{
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 12px;
+  }
+  .link-list a{
+    display: inline-block;
+    padding: 7px 16px;
+    border: 1px solid #d5deec;
+    border-radius: 999px;
+    color: var(--navy-light);
+    font-size: 14px;
+    text-decoration: none;
+    transition: background-color .2s, border-color .2s;
+  }
+  .link-list a:hover{
+    background-color: #eef2f9;
+    border-color: #b9c9e0;
+  }
+
+  .footer{
+    margin-top: 8px;
+    text-align: center;
+    font-size: 13px;
+    color: #a3aab6;
+  }
+
+  @media (max-width: 640px){
+    .nav-inner{
+      height: 56px;
+      padding: 0 16px;
+      gap: 10px;
+    }
+    .nav-brand{ font-size: 15px; }
+    .nav-links a{ padding: 6px 9px; font-size: 13px; }
+    .page-wrap{ padding: 32px 16px 48px; }
+    h1{ font-size: 26px; }
+    .card-box{ padding: 18px 18px; border-radius: 12px; }
+    .card-box{ scroll-margin-top: 68px; }
+  }
 </style>
 </head>
-<body>
-<div class="page-wrap">
+<body id="top">
+
+  <!-- 导航栏 -->
+  <nav class="site-nav">
+    <div class="nav-inner">
+      <a class="nav-brand" href="#top">李月涵</a>
+      <ul class="nav-links">
+        <li><a href="#intro">个人介绍</a></li>
+        <li><a href="#study">学习方向</a></li>
+        <li><a href="#hobby">爱好</a></li>
+        <li><a href="#cat">我的小猫</a></li>
+        <li><a href="#links">相关链接</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <div class="page-wrap">
+
     <div class="header-box">
-<h1>你好，我是李月涵</h1>
-<p>我的第一个段落。</p>
-</div>
-<div class="card-box">
-<h2>个人介绍</h2>
-<p>数据科学与大数据技术专业，MBTI是INTP。</p>
-</div>
-<h2>学习方向</h2>
-<p>学习数据分析、Python相关内容。</p>
+      <h1>你好，我是李月涵</h1>
+      <p>我的第一个段落。</p>
+    </div>
 
-<h2>爱好</h2>
-<p>玩游戏，看书、听音乐、撸猫。</p>
+    <div class="card-box" id="intro">
+      <h2>个人介绍</h2>
+      <p>数据科学与大数据技术专业，MBTI 是 INTP。</p>
+    </div>
 
-<h2>🐱 我的小猫</h2>
-<img src="./微信图片_20261006233525_67_1.jpg" alt="猫咪照片" width="400">
+    <div class="card-box" id="study">
+      <h2>学习方向</h2>
+      <p>学习数据分析、Python 相关内容。</p>
+    </div>
 
-<h2>相关链接</h2>
-<p>
-<a href="https://www.bilibili.com/" target="_blank">哔哩哔哩</a>
-</p>
-</div>
+    <div class="card-box" id="hobby">
+      <h2>爱好</h2>
+      <p>玩游戏，看书、听音乐、撸猫。</p>
+    </div>
+
+    <div class="card-box" id="cat">
+      <h2>🐱 我的小猫</h2>
+      <div class="photo-frame">
+        <img class="cat-photo"
+             src="./微信图片_20261006233525_67_1.jpg"
+             alt="猫咪照片"
+             onerror="this.style.display='none'; document.getElementById('catFallback').style.display='flex';">
+        <div class="photo-fallback" id="catFallback">暂时没找到照片，把「微信图片_20261006233525_67_1.jpg」放到与本页面同一个文件夹即可显示</div>
+      </div>
+    </div>
+
+    <div class="card-box" id="links">
+      <h2>相关链接</h2>
+      <div class="link-list">
+        <a href="https://www.bilibili.com/" target="_blank" rel="noopener">哔哩哔哩</a>
+      </div>
+    </div>
+
+    <p class="footer">© 2026 李月涵 · 用 HTML 与 CSS 搭起来的第一个个人主页</p>
+
+  </div>
+
 </body>
 </html>
