@@ -1,205 +1,614 @@
 <!DOCTYPE html>
-<html>
+<html lang="zh-CN">
 <head>
-    <meta charset="UTF-8">
-    <title>小组记账</title>
-    <style>
-        body{
-            background-color: #ececec;
-        }
-        h1{
-            color:#222;
-            text-align:center;
-        }
-        .box{
-            background-color:white;
-            margin:15px 18px;
-            padding:12px;
-        }
-        h2{
-            color:#333;
-        }
-        input, select{
-            border:1px solid #999;
-        }
-        button{
-            background-color:#3e74b3;
-            color: white;
-            border:none;
-        }
-        table{
-            width:100%;
-            border:1px solid #bbb;
-        }
-        th,td{
-            border:1px solid #bbb;
-            text-align:center;
-        }
-        th{
-            background-color:#e7e7e7;
-        }
-        .green{
-            color:#007020;
-        }
-        .red{
-            color:#c82423;
-        }
-    </style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>记账本</title>
+
+<!-- 与主页一致的字体：Inter + 思源黑体（Noto Sans SC），失败回退系统字体 -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Noto+Sans+SC:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+<style>
+  /* ---------- 设计变量（与个人主页同一套） ---------- */
+  :root{
+    --primary: #365F8C;   /* 主色 */
+    --bg:      #F4F7FA;   /* 页面背景 */
+    --card:    #FFFFFF;   /* 卡片 */
+    --text:    #222D3A;   /* 正文 */
+    --accent:  #E6EDF5;   /* 描边 / 分隔 */
+    --muted:   #6B7A8C;   /* 次级文字 */
+    --neg:     #8A5B58;   /* 仅用于负结余，低饱和砖红 */
+    --radius:  12px;
+    --shadow:  0 1px 2px rgba(34, 45, 58, .04), 0 8px 24px rgba(54, 95, 140, .05);
+    --nav-h:   64px;
+  }
+
+  *{ box-sizing: border-box; margin: 0; padding: 0; }
+
+  body{
+    background-color: var(--bg);
+    color: var(--text);
+    font-family: "Inter", "Noto Sans SC", "Source Han Sans SC",
+                 "PingFang SC", "Microsoft YaHei", sans-serif;
+    font-size: 16px;
+    line-height: 1.8;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  ::selection{ background-color: var(--accent); color: var(--primary); }
+
+  button{ font-family: inherit; cursor: pointer; }
+
+  /* ---------- 顶部导航 ---------- */
+  .site-nav{
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background-color: rgba(255, 255, 255, .92);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--accent);
+  }
+  .nav-wrap{
+    max-width: 880px;
+    margin: 0 auto;
+    padding: 0 32px;
+    height: var(--nav-h);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+  }
+  .brand{
+    color: var(--primary);
+    font-size: 16px;
+    font-weight: 600;
+    letter-spacing: .06em;
+    text-decoration: none;
+    white-space: nowrap;
+  }
+  .nav-links{ display: flex; gap: 28px; }
+  .nav-links a{
+    color: var(--muted);
+    font-size: 14px;
+    letter-spacing: .02em;
+    text-decoration: none;
+    transition: color .18s ease;
+  }
+  .nav-links a:hover{ color: var(--primary); }
+  .nav-links a[aria-current="page"]{ color: var(--primary); }
+
+  /* ---------- 主体 ---------- */
+  .page{
+    max-width: 880px;
+    margin: 0 auto;
+    padding: 0 32px 96px;
+  }
+
+  .hero{ padding: 88px 0 56px; border-bottom: 1px solid var(--accent); }
+  .hero-rule{
+    width: 28px;
+    height: 2px;
+    background-color: var(--primary);
+    margin-bottom: 26px;
+  }
+  .hero h1{
+    color: var(--primary);
+    font-size: 38px;
+    font-weight: 600;
+    letter-spacing: .02em;
+    line-height: 1.35;
+  }
+  .hero p{
+    margin-top: 12px;
+    color: var(--muted);
+    font-size: 15px;
+    font-weight: 300;
+  }
+
+  .card{
+    background-color: var(--card);
+    border: 1px solid var(--accent);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 32px 36px;
+    margin-top: 24px;
+  }
+  .card h2{
+    display: flex;
+    align-items: baseline;
+    gap: 14px;
+    color: var(--primary);
+    font-size: 19px;
+    font-weight: 600;
+    letter-spacing: .02em;
+  }
+  .idx{
+    color: var(--muted);
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: .12em;
+  }
+
+  /* ---------- 统计 ---------- */
+  .stats{
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1px;
+    background-color: var(--accent);
+    padding: 0;
+    overflow: hidden;
+  }
+  .stat{
+    background-color: var(--card);
+    padding: 24px 28px;
+  }
+  .stat-label{
+    display: block;
+    color: var(--muted);
+    font-size: 12px;
+    letter-spacing: .12em;
+  }
+  .stat strong{
+    display: block;
+    margin-top: 10px;
+    color: var(--text);
+    font-size: 24px;
+    font-weight: 600;
+    letter-spacing: .01em;
+    font-variant-numeric: tabular-nums;
+  }
+  #statIncome{ color: var(--primary); }
+  #statBalance.is-neg{ color: var(--neg); }
+
+  /* ---------- 录入表单 ---------- */
+  .entry-form{
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 18px 20px;
+    margin-top: 24px;
+  }
+  .field{ display: flex; flex-direction: column; gap: 8px; }
+  .field label{
+    color: var(--muted);
+    font-size: 12px;
+    letter-spacing: .1em;
+  }
+  .field input,
+  .field select{
+    width: 100%;
+    height: 40px;
+    padding: 0 12px;
+    border: 1px solid var(--accent);
+    border-radius: 8px;
+    background-color: var(--bg);
+    color: var(--text);
+    font-family: inherit;
+    font-size: 14px;
+    outline: none;
+    transition: border-color .18s ease, background-color .18s ease;
+  }
+  .field input:focus,
+  .field select:focus{
+    border-color: var(--primary);
+    background-color: var(--card);
+  }
+  .field input::placeholder{ color: #9AA7B6; }
+
+  .form-foot{
+    grid-column: 1 / -1;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-top: 4px;
+  }
+  .hint{
+    color: var(--muted);
+    font-size: 13px;
+    min-height: 20px;
+  }
+  .hint.is-error{ color: var(--neg); }
+
+  .btn-primary{
+    padding: 10px 28px;
+    border: 1px solid var(--primary);
+    border-radius: 8px;
+    background-color: var(--primary);
+    color: #fff;
+    font-size: 14px;
+    letter-spacing: .04em;
+    transition: opacity .18s ease;
+  }
+  .btn-primary:hover{ opacity: .88; }
+
+  /* ---------- 账目列表 ---------- */
+  .list-head,
+  .entry-row{
+    display: grid;
+    grid-template-columns: 96px minmax(0, 1fr) 64px 120px 48px;
+    grid-template-areas: "date name type money del";
+    align-items: center;
+    gap: 16px;
+  }
+  .list-head{
+    margin-top: 20px;
+    padding: 0 4px 10px;
+    border-bottom: 1px solid var(--accent);
+    color: var(--muted);
+    font-size: 12px;
+    letter-spacing: .1em;
+  }
+  .list-head .r{ text-align: right; }
+
+  .entry-list{ list-style: none; }
+  .entry-row{
+    padding: 14px 4px;
+    border-bottom: 1px solid var(--accent);
+  }
+  .entry-row .date,
+  .entry-row .type{
+    color: var(--muted);
+    font-size: 13px;
+    font-variant-numeric: tabular-nums;
+  }
+  .entry-row .name{
+    font-size: 15px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .entry-row .money{
+    text-align: right;
+    font-size: 15px;
+    font-weight: 500;
+    font-variant-numeric: tabular-nums;
+    color: var(--muted);
+  }
+  .entry-row .money.is-income{ color: var(--primary); }
+  .del{
+    justify-self: end;
+    padding: 2px 0;
+    border: none;
+    background: none;
+    color: var(--muted);
+    font-size: 13px;
+    letter-spacing: .02em;
+    transition: color .18s ease;
+  }
+  .del:hover{ color: var(--neg); }
+
+  .empty{
+    padding: 28px 4px 8px;
+    color: var(--muted);
+    font-size: 14px;
+  }
+  .empty[hidden]{ display: none; }
+
+  .note{
+    margin-top: 16px;
+    color: var(--muted);
+    font-size: 12px;
+  }
+
+  .footer{
+    margin-top: 48px;
+    color: var(--muted);
+    font-size: 13px;
+    text-align: center;
+  }
+
+  /* ---------- 响应式 ---------- */
+  @media (max-width: 820px){
+    .entry-form{ grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
+
+  @media (max-width: 720px){
+    .nav-wrap{ padding: 0 20px; height: 56px; }
+    .nav-links{ gap: 20px; }
+    .page{ padding: 0 20px 64px; }
+    .hero{ padding: 56px 0 40px; }
+    .hero h1{ font-size: 28px; }
+    .card{ padding: 22px 20px; border-radius: 10px; margin-top: 18px; }
+
+    .stats{ grid-template-columns: 1fr; }
+    .stat{ padding: 18px 20px; display: flex; align-items: baseline; justify-content: space-between; }
+    .stat strong{ margin-top: 0; font-size: 20px; }
+
+    .entry-form{ grid-template-columns: 1fr; gap: 14px; }
+    .form-foot{ flex-direction: column-reverse; align-items: stretch; }
+    .btn-primary{ width: 100%; }
+
+    .list-head{ display: none; }
+    .entry-list{ margin-top: 12px; }
+    .entry-row{
+      grid-template-columns: minmax(0, 1fr) auto;
+      grid-template-areas:
+        "name  money"
+        "date  del";
+      gap: 4px 12px;
+      padding: 14px 4px;
+    }
+    .entry-row .name{ grid-area: name; }
+    .entry-row .money{ grid-area: money; }
+    .entry-row .date{ grid-area: date; }
+    .entry-row .type{ display: none; }
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    *{ transition: none !important; }
+  }
+</style>
 </head>
 <body>
-    <h1>小组记账本</h1>
 
-    <div class="box">
-        <h2>本月统计</h2>
-        <p>总收入：<span id="shouru">0</span> 元</p >
-        <p>总支出：<span id="zhichu">0</span> 元</p >
-        <p>结余：<span id="jieyu">0</span> 元</p >
+  <!-- 顶部导航 -->
+  <header class="site-nav">
+    <div class="nav-wrap">
+      <a class="brand" href="./index.html">主页</a>
+      <nav class="nav-links">
+        <a href="./zhangben.html" aria-current="page">记账本</a>
+      </nav>
     </div>
+  </header>
 
-    <div class="box">
-        <h2>添加记录</h2>
-        <p>日期：<input type="date"></p >
-        <p>项目：<input type="text" placeholder="比如吃饭"></p >
-        <p>类型：
-            <select>
-                <option>支出</option>
-                <option>收入</option>
-            </select>
-        </p >
-        <p>金额：<input type="number"></p >
-        <p><button>保存</button></p >
-    </div>
+  <main class="page">
 
-    <div class="box">
-        <h2>记录列表</h2>
-        <table>
-            <tr>
-                <th>日期</th>
-                <th>事项</th>
-                <th>类型</th>
-                <th>金额</th>
-            </tr>
-            <tr>
-                <td>10-03</td>
-                <td>超市</td>
-                <td class="red">支出</td>
-                <td>95</td>
-            </tr>
-            <tr>
-                <td>10-07</td>
-                <td>家教</td>
-                <td class="green">收入</td>
-                <td>400</td>
-            </tr>
-            <tr>
-                <td>10-10</td>
-                <td>奶茶</td>
-                <td class="red">支出</td>
-                <td>32</td>
-            </tr>
-        </table>
-    </div>
+    <!-- 标题区 -->
+    <section class="hero">
+      <div class="hero-rule"></div>
+      <h1>记账本</h1>
+      <p>记录每一笔收支，数据保存在当前浏览器本地。</p>
+    </section>
+
+    <!-- 统计 -->
+    <section class="card stats" aria-label="收支统计">
+      <div class="stat">
+        <span class="stat-label">总收入</span>
+        <strong id="statIncome">¥0.00</strong>
+      </div>
+      <div class="stat">
+        <span class="stat-label">总支出</span>
+        <strong id="statExpense">¥0.00</strong>
+      </div>
+      <div class="stat">
+        <span class="stat-label">结余</span>
+        <strong id="statBalance">¥0.00</strong>
+      </div>
+    </section>
+
+    <!-- 录入 -->
+    <section class="card">
+      <h2><span class="idx">01</span>添加记录</h2>
+      <form class="entry-form" id="entryForm" autocomplete="off" novalidate>
+        <div class="field">
+          <label for="fDate">日期</label>
+          <input type="date" id="fDate" required>
+        </div>
+        <div class="field">
+          <label for="fName">项目</label>
+          <input type="text" id="fName" maxlength="30" placeholder="比如：食堂、家教">
+        </div>
+        <div class="field">
+          <label for="fType">类型</label>
+          <select id="fType">
+            <option value="支出">支出</option>
+            <option value="收入">收入</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="fMoney">金额（元）</label>
+          <input type="number" id="fMoney" min="0.01" step="0.01" placeholder="0.00">
+        </div>
+        <div class="form-foot">
+          <p class="hint" id="formHint" role="status"></p>
+          <button type="submit" class="btn-primary">保存</button>
+        </div>
+      </form>
+    </section>
+
+    <!-- 列表 -->
+    <section class="card">
+      <h2><span class="idx">02</span>账目列表</h2>
+      <div class="list-head">
+        <span>日期</span>
+        <span>项目</span>
+        <span>类型</span>
+        <span class="r">金额</span>
+        <span></span>
+      </div>
+      <ul class="entry-list" id="entryList"></ul>
+      <p class="empty" id="emptyTip">还没有记录，先添加一笔吧。</p>
+      <p class="note">数据仅保存在本机浏览器，清除浏览器数据会一并删除。</p>
+    </section>
+
+    <p class="footer">© 2026 记账本</p>
+
+  </main>
 
 <script>
-// 把记账记录存在浏览器本地
-let jizhangList = localStorage.getItem("jizhang");
-if (jizhangList == null) {
-    jizhangList = [];
-} else {
-    jizhangList = JSON.parse(jizhangList);
-}
+(function () {
+  "use strict";
 
-// 获取保存按钮
-let baocunBtn = document.querySelector("button");
-baocunBtn.onclick = function () {
+  /* 存储键沿用旧版 "jizhang"，老记录可直接读出来 */
+  var STORAGE_KEY = "jizhang";
 
-    // 取出各个输入框的值
-    let riqi = document.querySelector('input[type="date"]').value;
-    let xiangmu = document.querySelector('input[type="text"]').value;
-    let leixing = document.querySelector('select').value;
-    let jine = document.querySelector('input[type="number"]').value;
+  var form      = document.getElementById("entryForm");
+  var fDate     = document.getElementById("fDate");
+  var fName     = document.getElementById("fName");
+  var fType     = document.getElementById("fType");
+  var fMoney    = document.getElementById("fMoney");
+  var hint      = document.getElementById("formHint");
+  var list      = document.getElementById("entryList");
+  var emptyTip  = document.getElementById("emptyTip");
+  var elIncome  = document.getElementById("statIncome");
+  var elExpense = document.getElementById("statExpense");
+  var elBalance = document.getElementById("statBalance");
 
-    // 简单判断，不能为空
-    if (riqi == "" || xiangmu == "" || jine == "") {
-        alert("日期、项目、金额都要填哦！");
-        return;
+  var records = [];
+
+  /* ---------- 数据 ---------- */
+  function load() {
+    var raw = null;
+    try { raw = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]"); } catch (e) { raw = []; }
+    if (!Array.isArray(raw)) raw = [];
+
+    return raw.map(function (r, i) {
+      return {
+        id: r.id || "r" + Date.now() + "_" + i,
+        date: r.date || "",
+        name: r.name || "未命名",
+        type: r.type === "收入" ? "收入" : "支出",
+        money: Math.abs(Number(r.money)) || 0
+      };
+    });
+  }
+
+  function save() {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(records));
+    } catch (e) {
+      setHint("保存失败：浏览器存储空间不足或被禁用", true);
+    }
+  }
+
+  /* ---------- 工具 ---------- */
+  function money(n) {
+    return "¥" + n.toLocaleString("zh-CN", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    });
+  }
+
+  function shortDate(str) {
+    var m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(str);
+    return m ? m[2] + "-" + m[3] : str;
+  }
+
+  function setHint(text, isError) {
+    hint.textContent = text || "";
+    hint.className = isError ? "hint is-error" : "hint";
+  }
+
+  /* ---------- 渲染 ---------- */
+  function render() {
+    list.innerHTML = "";
+
+    records.forEach(function (r) {
+      var li = document.createElement("li");
+      li.className = "entry-row";
+      li.dataset.id = r.id;
+
+      var d = document.createElement("span");
+      d.className = "date";
+      d.textContent = shortDate(r.date);
+      d.title = r.date;
+
+      var n = document.createElement("span");
+      n.className = "name";
+      n.textContent = r.name;
+
+      var t = document.createElement("span");
+      t.className = "type";
+      t.textContent = r.type;
+
+      var m = document.createElement("span");
+      m.className = "money" + (r.type === "收入" ? " is-income" : "");
+      m.textContent = (r.type === "收入" ? "+" : "−") + money(r.money);
+
+      var btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "del";
+      btn.textContent = "删除";
+      btn.dataset.action = "delete";
+      btn.setAttribute("aria-label", "删除「" + r.name + "」这条记录");
+
+      li.append(d, n, t, m, btn);
+      list.appendChild(li);
+    });
+
+    emptyTip.hidden = records.length > 0;
+    updateStats();
+  }
+
+  function updateStats() {
+    var income = 0, expense = 0;
+
+    records.forEach(function (r) {
+      if (r.type === "收入") income += r.money;
+      else expense += r.money;
+    });
+
+    var balance = income - expense;
+
+    elIncome.textContent = money(income);
+    elExpense.textContent = money(expense);
+    elBalance.textContent = money(balance);
+    elBalance.classList.toggle("is-neg", balance < 0);
+  }
+
+  /* ---------- 交互 ---------- */
+  form.addEventListener("submit", function (e) {
+    e.preventDefault();
+
+    var date  = fDate.value;
+    var name  = fName.value.trim();
+    var type  = fType.value;
+    var amount = parseFloat(fMoney.value);
+
+    if (!date) { setHint("请选择日期", true); fDate.focus(); return; }
+    if (!name) { setHint("请填写项目名称", true); fName.focus(); return; }
+    if (!isFinite(amount) || amount <= 0) {
+      setHint("金额需要大于 0", true); fMoney.focus(); return;
     }
 
-    // 新建一条记录
-    let newItem = {
-        date: riqi,
-        name: xiangmu,
-        type: leixing,
-        money: jine
-    };
-    jizhangList.push(newItem);
+    records.unshift({
+      id: "r" + Date.now(),
+      date: date,
+      name: name,
+      type: type,
+      money: Math.round(amount * 100) / 100
+    });
 
-    // 保存到浏览器
-    localStorage.setItem("jizhang", JSON.stringify(jizhangList));
+    save();
+    render();
 
-    // 在表格末尾加一行
-    let biaoGe = document.querySelector("table");
-    let hang = document.createElement("tr");
+    fName.value = "";
+    fMoney.value = "";
+    fType.value = "支出";
+    setHint("已保存一条" + type + "记录");
+    fName.focus();
+  });
 
-    let yanSeLei;
-    if (leixing == "收入") {
-        yanSeLei = "green";
-    } else {
-        yanSeLei = "red";
-    }
+  list.addEventListener("click", function (e) {
+    var btn = e.target.closest('[data-action="delete"]');
+    if (!btn) return;
 
-    hang.innerHTML = "<td>" + riqi + "</td>"
-        + "<td>" + xiangmu + "</td>"
-        + "<td class='" + yanSeLei + "'>" + leixing + "</td>"
-        + "<td>" + jine + "</td>";
+    var row = btn.closest(".entry-row");
+    var id = row.dataset.id;
+    var item = records.find(function (r) { return r.id === id; });
+    if (!item) return;
 
-    biaoGe.appendChild(hang);
+    if (!window.confirm("删除「" + item.name + "」这条记录？")) return;
 
-    // 清空输入框
-    document.querySelector('input[type="date"]').value = "";
-    document.querySelector('input[type="text"]').value = "";
-    document.querySelector('input[type="number"]').value = "";
+    records = records.filter(function (r) { return r.id !== id; });
+    save();
+    render();
+    setHint("已删除一条记录");
+  });
 
-    // 更新统计数字
-    suanZongShu();
-};
-
-// 计算总收入、总支出
-function suanZongShu() {
-    let sumShou = 0;
-    let sumZhi = 0;
-    for (let i = 0; i < jizhangList.length; i++) {
-        let one = jizhangList[i];
-        if (one.type == "收入") {
-            sumShou = sumShou + Number(one.money);
-        } else {
-            sumZhi = sumZhi + Number(one.money);
-        }
-    }
-    document.getElementById("shouru").innerText = sumShou;
-    document.getElementById("zhichu").innerText = sumZhi;
-    document.getElementById("jieyu").innerText = sumShou - sumZhi;
-}
-
-// 页面打开时，把之前存的记录显示出来
-for (let i = 0; i < jizhangList.length; i++) {
-    let one = jizhangList[i];
-    let hang = document.createElement("tr");
-    let yanSeLei;
-    if (one.type == "收入") {
-        yanSeLei = "green";
-    } else {
-        yanSeLei = "red";
-    }
-    hang.innerHTML = "<td>" + one.date + "</td>"
-        + "<td>" + one.name + "</td>"
-        + "<td class='" + yanSeLei + "'>" + one.type + "</td>"
-        + "<td>" + one.money + "</td>";
-    document.querySelector("table").appendChild(hang);
-}
-
-// 打开页面就算一遍统计
-suanZongShu();
+  /* ---------- 初始化 ---------- */
+  var today = new Date();
+  fDate.value = [
+    today.getFullYear(),
+    ("0" + (today.getMonth() + 1)).slice(-2),
+    ("0" + today.getDate()).slice(-2)
+  ].join("-");
+  records = load();
+  save();
+  render();
+})();
 </script>
 
 </body>
