@@ -11,7 +11,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Noto+Sans+SC:wght@300;400;500;600&display=swap" rel="stylesheet">
 
 <style>
-  /* ---------- 设计变量 ---------- */
+  /* ---------- 设计变量（配色不变） ---------- */
   :root{
     --primary: #365F8C;   /* 主色 */
     --bg:      #F4F7FA;   /* 页面背景 */
@@ -21,6 +21,7 @@
     --muted:   #6B7A8C;   /* 次级文字 */
     --radius:  12px;
     --shadow:  0 1px 2px rgba(34, 45, 58, .04), 0 8px 24px rgba(54, 95, 140, .05);
+    --shadow-hover: 0 2px 4px rgba(34, 45, 58, .05), 0 14px 36px rgba(54, 95, 140, .10);
     --nav-h:   64px;
   }
 
@@ -43,6 +44,20 @@
   ::selection{ background-color: var(--accent); color: var(--primary); }
 
   a{ color: var(--primary); text-decoration: none; }
+
+  /* ---------- 阅读进度条 ---------- */
+  .progress{
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 30;
+    width: 100%;
+    height: 2px;
+    background-color: var(--primary);
+    transform: scaleX(0);
+    transform-origin: 0 50%;
+    pointer-events: none;
+  }
 
   /* ---------- 顶部导航 ---------- */
   .site-nav{
@@ -79,13 +94,32 @@
   }
   .nav-links::-webkit-scrollbar{ display: none; }
   .nav-links a{
+    position: relative;
+    display: block;
+    padding: 4px 0;
     color: var(--muted);
     font-size: 14px;
     letter-spacing: .02em;
     white-space: nowrap;
     transition: color .18s ease;
   }
-  .nav-links a:hover{ color: var(--primary); }
+  .nav-links a::after{
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: -2px;
+    width: 100%;
+    height: 2px;
+    border-radius: 2px;
+    background-color: var(--primary);
+    transform: scaleX(0);
+    transform-origin: 0 50%;
+    transition: transform .22s ease;
+  }
+  .nav-links a:hover,
+  .nav-links a.active{ color: var(--primary); }
+  .nav-links a:hover::after,
+  .nav-links a.active::after{ transform: scaleX(1); }
 
   /* ---------- 页面主体 ---------- */
   .page{
@@ -94,11 +128,49 @@
     padding: 0 32px 96px;
   }
 
-  /* 欢迎区 */
+  /* ---------- 欢迎区 ---------- */
   .hero{
+    position: relative;
+    overflow: hidden;
     padding: 104px 0 72px;
     border-bottom: 1px solid var(--accent);
   }
+  /* 极光光晕：两团低速漂移的灰蓝雾 */
+  .aurora{
+    position: absolute;
+    width: 460px;
+    height: 460px;
+    border-radius: 50%;
+    filter: blur(70px);
+    opacity: .55;
+    pointer-events: none;
+  }
+  .aurora.a1{
+    top: -140px;
+    left: -90px;
+    background: radial-gradient(circle, rgba(54, 95, 140, .32), transparent 70%);
+    animation: drift1 22s ease-in-out infinite alternate;
+  }
+  .aurora.a2{
+    bottom: -170px;
+    right: -70px;
+    background: radial-gradient(circle, rgba(140, 168, 198, .30), transparent 70%);
+    animation: drift2 27s ease-in-out infinite alternate;
+  }
+  @keyframes drift1{ to{ transform: translate(90px, 55px) scale(1.18); } }
+  @keyframes drift2{ to{ transform: translate(-75px, -45px) scale(1.12); } }
+
+  /* 粒子星座画布：铺在欢迎区底层 */
+  #sky{
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    display: block;
+  }
+  .hero > .hero-rule,
+  .hero > h1,
+  .hero > p{ position: relative; z-index: 1; }
+
   .hero-rule{
     width: 28px;
     height: 2px;
@@ -107,20 +179,51 @@
   }
   .hero h1{
     color: var(--primary);
-    font-size: 42px;
+    font-size: 44px;
     font-weight: 600;
     line-height: 1.35;
     letter-spacing: .02em;
   }
+  /* 渐变流光标题（不支持时回退纯色） */
+  @supports ((-webkit-background-clip: text)){
+    .hero h1{
+      background: linear-gradient(105deg, #222D3A 15%, #365F8C 50%, #222D3A 85%);
+      background-size: 220% 100%;
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      -webkit-text-fill-color: transparent;
+      animation: sheen 9s ease-in-out infinite;
+    }
+  }
+  @keyframes sheen{
+    0%, 100%{ background-position: 0% 0; }
+    50%{ background-position: 100% 0; }
+  }
+
   .hero p{
     margin-top: 14px;
     color: var(--muted);
     font-size: 17px;
     font-weight: 300;
+    min-height: 1.9em;
   }
+  /* 打字光标 */
+  .caret{
+    display: inline-block;
+    width: 2px;
+    height: 1em;
+    margin-left: 2px;
+    background-color: var(--primary);
+    vertical-align: -0.15em;
+  }
+  .caret.blink{ animation: blink 1s steps(1) infinite; }
+  @keyframes blink{ 50%{ opacity: 0; } }
 
-  /* 卡片 */
+  /* ---------- 卡片 ---------- */
   .card{
+    position: relative;
+    overflow: hidden;
     background-color: var(--card);
     border: 1px solid var(--accent);
     border-radius: var(--radius);
@@ -128,7 +231,25 @@
     padding: 36px 40px;
     margin-top: 24px;
     scroll-margin-top: calc(var(--nav-h) + 24px);
+    transition: box-shadow .25s ease, border-color .25s ease;
   }
+  .card:hover{
+    border-color: #C6D5E6;
+    box-shadow: var(--shadow-hover);
+  }
+  /* 鼠标跟随光斑（触屏不启用） */
+  .card::after{
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(320px circle at var(--mx, 50%) var(--my, 50%),
+                rgba(54, 95, 140, .07), transparent 65%);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .25s ease;
+  }
+  .card:hover::after{ opacity: 1; }
+
   .card h2{
     display: flex;
     align-items: baseline;
@@ -207,34 +328,35 @@
     height: 200px;
     align-items: center;
     justify-content: center;
-    padding: 0 24px;
-    border: 1px dashed #C9D4E0;
-    border-radius: 10px;
-    background-color: var(--bg);
-    color: var(--muted);
+    padding: 0 20px;
+    border: 1px dashed #c8cfdb;
+    background-color: #f7f8fb;
+    color: #98a1b0;
     font-size: 13px;
     text-align: center;
   }
 
   /* 相关链接 */
   .link-list{
-    margin-top: 16px;
-    border-top: 1px solid var(--accent);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 12px;
   }
   .link-list a{
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 14px 0;
-    border-bottom: 1px solid var(--accent);
-    color: var(--text);
-    font-size: 15px;
-    transition: color .18s ease;
+    display: inline-block;
+    padding: 7px 16px;
+    border: 1px solid #d5deec;
+    border-radius: 999px;
+    color: var(--primary);
+    font-size: 14px;
+    transition: background-color .2s, border-color .2s;
   }
-  .link-list a:hover{ color: var(--primary); }
-  .link-list .arrow{ color: var(--muted); font-size: 14px; }
+  .link-list a:hover{
+    background-color: #eef2f9;
+    border-color: #b9c9e0;
+  }
 
-  /* 页脚 */
   .footer{
     margin-top: 48px;
     color: var(--muted);
@@ -242,105 +364,326 @@
     letter-spacing: .02em;
     text-align: center;
   }
+  .footer a{ color: var(--muted); border-bottom: 1px solid var(--accent); }
+  .footer a:hover{ color: var(--primary); }
+
+  /* ---------- 滚动渐显（仅在允许动效时启用） ---------- */
+  @media (prefers-reduced-motion: no-preference){
+    .reveal{
+      opacity: 0;
+      transform: translateY(18px);
+      transition: opacity .55s ease, transform .55s ease;
+    }
+    .reveal.in{
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
 
   /* ---------- 移动端 ---------- */
   @media (max-width: 720px){
-    .nav-wrap{ padding: 0 20px; height: 56px; gap: 16px; }
+    .nav-wrap{ padding: 0 16px; height: 56px; gap: 10px; }
+    .brand{ font-size: 15px; }
     .nav-links{ gap: 20px; }
-    .page{ padding: 0 20px 64px; }
+    .nav-links a{ padding: 6px 9px; font-size: 13px; }
+    .page{ padding: 32px 16px 48px; }
     .hero{ padding: 64px 0 48px; }
     .hero h1{ font-size: 30px; }
     .hero p{ font-size: 15px; }
-    .card{ padding: 24px 22px; border-radius: 10px; margin-top: 18px; }
-    .card h2{ font-size: 18px; }
-    .hobby-list{ grid-template-columns: 1fr; gap: 0; }
+    .aurora{ opacity: .4; }
+    .card{ padding: 18px 18px; border-radius: 12px; }
+    .card{ scroll-margin-top: 68px; }
   }
 
-  /* 尊重系统降低动效设置 */
+  /* ---------- 尊重系统降低动效设置 ---------- */
   @media (prefers-reduced-motion: reduce){
     html{ scroll-behavior: auto; }
-    *{ transition: none !important; }
+    .aurora,
+    .hero h1,
+    .caret{ animation: none !important; }
+    .card, .nav-links a, .nav-links a::after{ transition: none !important; }
   }
 </style>
 </head>
 <body id="top">
 
-  <!-- 顶部导航 -->
-  <header class="site-nav">
+  <div class="progress" id="progress"></div>
+
+  <!-- 导航栏 -->
+  <nav class="site-nav">
     <div class="nav-wrap">
       <a class="brand" href="#top">李月涵</a>
-      <nav class="nav-links" aria-label="主导航">
-        <a href="#intro">个人介绍</a>
-        <a href="#study">学习方向</a>
-        <a href="#hobby">爱好</a>
-        <a href="#cat">我的小猫</a>
-        <a href="#links">相关链接</a>
-      </nav>
+      <ul class="nav-links">
+        <li><a href="#intro">个人介绍</a></li>
+        <li><a href="#study">学习方向</a></li>
+        <li><a href="#hobby">爱好</a></li>
+        <li><a href="#cat">我的小猫</a></li>
+        <li><a href="#links">相关链接</a></li>
+      </ul>
     </div>
-  </header>
+  </nav>
 
-  <main class="page">
+  <div class="page">
 
     <!-- 欢迎区 -->
-    <section class="hero">
+    <header class="hero">
+      <div class="aurora a1"></div>
+      <div class="aurora a2"></div>
+      <canvas id="sky" aria-hidden="true"></canvas>
       <div class="hero-rule"></div>
       <h1>李月涵</h1>
-      <p>你好，我是李月涵。</p>
-    </section>
+      <p id="heroLead" data-text="你好，我是李月涵。"></p>
+    </header>
 
-    <!-- 个人介绍 -->
-    <section class="card" id="intro">
-      <h2><span class="idx">01</span>个人介绍</h2>
+    <div class="card" id="intro">
+      <h2>个人介绍</h2>
       <p>数据科学与大数据技术专业，MBTI 是 INTP。</p>
-    </section>
+    </div>
 
-    <!-- 学习方向 -->
-    <section class="card" id="study">
-      <h2><span class="idx">02</span>学习方向</h2>
+    <div class="card" id="study">
+      <h2>学习方向</h2>
       <p>学习数据分析、Python 相关内容。</p>
       <ul class="tag-list">
         <li>数据分析</li>
         <li>Python</li>
       </ul>
-    </section>
+    </div>
 
-    <!-- 爱好 -->
-    <section class="card" id="hobby">
-      <h2><span class="idx">03</span>爱好</h2>
+    <div class="card" id="hobby">
+      <h2>爱好</h2>
       <ul class="hobby-list">
         <li>玩游戏</li>
         <li>看书</li>
         <li>听音乐</li>
         <li>撸猫</li>
       </ul>
-    </section>
+    </div>
 
-    <!-- 我的小猫 -->
-    <section class="card" id="cat">
-      <h2><span class="idx">04</span>我的小猫</h2>
+    <div class="card" id="cat">
+      <h2>🐱 我的小猫</h2>
       <div class="photo-frame">
         <img class="cat-photo"
              src="./微信图片_20261006233525_67_1.jpg"
-             alt="我的小猫"
+             alt="猫咪照片"
              onerror="this.style.display='none'; document.getElementById('catFallback').style.display='flex';">
-        <div class="photo-fallback" id="catFallback">照片暂未加载，请确认图片与页面在同一目录</div>
+        <div class="photo-fallback" id="catFallback">暂时没找到照片，把「微信图片_20261006233525_67_1.jpg」放到与本页面同一个文件夹即可显示</div>
       </div>
-    </section>
+    </div>
 
-    <!-- 相关链接 -->
-    <section class="card" id="links">
-      <h2><span class="idx">05</span>相关链接</h2>
+    <div class="card" id="links">
+      <h2>相关链接</h2>
       <div class="link-list">
-        <a href="https://www.bilibili.com/" target="_blank" rel="noopener">
-          <span>哔哩哔哩</span>
-          <span class="arrow">↗</span>
-        </a>
+        <a href="https://www.bilibili.com/" target="_blank" rel="noopener">哔哩哔哩</a>
       </div>
-    </section>
+    </div>
 
-    <p class="footer">© 2026 李月涵 · Personal Homepage</p>
+    <p class="footer">
+      © 2026 李月涵 · <a href="./old.html">旧版记忆</a>
+    </p>
 
-  </main>
+  </div>
+
+<script>
+(function () {
+  "use strict";
+
+  var REDUCED = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var CAN_HOVER = window.matchMedia("(hover: hover)").matches;
+
+  /* ============ 1. 阅读进度条 ============ */
+  var progress = document.getElementById("progress");
+  function updateProgress() {
+    var h = document.documentElement;
+    var max = h.scrollHeight - h.clientHeight;
+    progress.style.transform = "scaleX(" + (max > 0 ? h.scrollTop / max : 0) + ")";
+  }
+  window.addEventListener("scroll", updateProgress, { passive: true });
+  window.addEventListener("resize", updateProgress);
+  updateProgress();
+
+  /* ============ 2. 欢迎区粒子星座 ============ */
+  var canvas = document.getElementById("sky");
+  var hero = canvas.parentElement;
+  var ctx = canvas.getContext("2d");
+  var DPR = Math.min(window.devicePixelRatio || 1, 2);
+  var W = 0, H = 0, pts = [], raf = null, running = false;
+  var mouse = { x: null, y: null };
+
+  function resizeCanvas() {
+    var rect = hero.getBoundingClientRect();
+    W = rect.width;
+    H = rect.height;
+    canvas.width = Math.round(W * DPR);
+    canvas.height = Math.round(H * DPR);
+    canvas.style.width = W + "px";
+    canvas.style.height = H + "px";
+    ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+    seed();
+    if (REDUCED) drawFrame();          /* 静态画一帧 */
+  }
+
+  function seed() {
+    var n = Math.min(90, Math.max(30, Math.round(W * H / 16000)));
+    pts = [];
+    for (var i = 0; i < n; i++) {
+      pts.push({
+        x: Math.random() * W,
+        y: Math.random() * H,
+        vx: (Math.random() - .5) * .35,
+        vy: (Math.random() - .5) * .35,
+        r: Math.random() * 1.5 + .6
+      });
+    }
+  }
+
+  function drawFrame() {
+    var i, j, a, b, dx, dy, d2;
+    ctx.clearRect(0, 0, W, H);
+
+    for (i = 0; i < pts.length; i++) {
+      a = pts[i];
+      if (mouse.x !== null) {
+        dx = a.x - mouse.x;
+        dy = a.y - mouse.y;
+        d2 = dx * dx + dy * dy;
+        if (d2 < 9000 && d2 > 0.01) {
+          var d = Math.sqrt(d2), f = (95 - d) / 95 * .06;
+          a.vx += dx / d * f;
+          a.vy += dy / d * f;
+        }
+      }
+      a.vx *= .995; a.vy *= .995;
+      if (Math.hypot(a.vx, a.vy) < .12) {   /* 保持缓慢游动 */
+        a.vx += (Math.random() - .5) * .05;
+        a.vy += (Math.random() - .5) * .05;
+      }
+      a.x += a.vx; a.y += a.vy;
+      if (a.x < -10) a.x = W + 10; else if (a.x > W + 10) a.x = -10;
+      if (a.y < -10) a.y = H + 10; else if (a.y > H + 10) a.y = -10;
+    }
+
+    ctx.lineWidth = 1;
+    for (i = 0; i < pts.length; i++) {
+      for (j = i + 1; j < pts.length; j++) {
+        a = pts[i]; b = pts[j];
+        dx = a.x - b.x; dy = a.y - b.y;
+        d2 = dx * dx + dy * dy;
+        if (d2 < 12100) {
+          ctx.strokeStyle = "rgba(54,95,140," + ((1 - Math.sqrt(d2) / 110) * .28).toFixed(3) + ")";
+          ctx.beginPath();
+          ctx.moveTo(a.x, a.y);
+          ctx.lineTo(b.x, b.y);
+          ctx.stroke();
+        }
+      }
+    }
+
+    ctx.fillStyle = "rgba(54,95,140,.45)";
+    for (i = 0; i < pts.length; i++) {
+      ctx.beginPath();
+      ctx.arc(pts[i].x, pts[i].y, pts[i].r, 0, 6.2832);
+      ctx.fill();
+    }
+  }
+
+  function loop() {
+    drawFrame();
+    raf = requestAnimationFrame(loop);
+  }
+  function start() {
+    if (!running && !REDUCED) { running = true; raf = requestAnimationFrame(loop); }
+  }
+  function stop() {
+    running = false;
+    if (raf) { cancelAnimationFrame(raf); raf = null; }
+  }
+
+  window.addEventListener("resize", resizeCanvas);
+  resizeCanvas();
+
+  if (CAN_HOVER && !REDUCED) {
+    hero.addEventListener("mousemove", function (e) {
+      var rect = hero.getBoundingClientRect();
+      mouse.x = e.clientX - rect.left;
+      mouse.y = e.clientY - rect.top;
+    });
+    hero.addEventListener("mouseleave", function () { mouse.x = mouse.y = null; });
+  }
+
+  /* 只在欢迎区可见且页面在前台时运行 */
+  new IntersectionObserver(function (entries) {
+    entries.forEach(function (en) { en.isIntersecting ? start() : stop(); });
+  }, { threshold: 0 }).observe(hero);
+
+  document.addEventListener("visibilitychange", function () {
+    document.hidden ? stop() : start();
+  });
+
+  /* ============ 3. 打字机自我介绍 ============ */
+  var lead = document.getElementById("heroLead");
+  var text = lead.getAttribute("data-text") || "";
+  var caret = document.createElement("span");
+  caret.className = "caret" + (REDUCED ? "" : " blink");
+  lead.appendChild(caret);
+
+  if (REDUCED) {
+    lead.insertBefore(document.createTextNode(text), caret);
+  } else {
+    var i = 0;
+    (function type() {
+      if (i <= text.length) {
+        lead.insertBefore(document.createTextNode(text.charAt(i - 1)), caret);
+        i++;
+        setTimeout(type, 85);
+      }
+    })();
+  }
+
+  /* ============ 4. 滚动渐显 ============ */
+  var revealEls = document.querySelectorAll(".card, .footer");
+  if (REDUCED || !("IntersectionObserver" in window)) {
+    Array.prototype.forEach.call(revealEls, function (el) { el.classList.add("in"); });
+  } else {
+    Array.prototype.forEach.call(revealEls, function (el) { el.classList.add("reveal"); });
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (en) {
+        if (en.isIntersecting) { en.target.classList.add("in"); io.unobserve(en.target); }
+      });
+    }, { threshold: .12 });
+    Array.prototype.forEach.call(revealEls, function (el) { io.observe(el); });
+  }
+
+  /* ============ 5. 导航高亮跟随当前板块 ============ */
+  var links = Array.prototype.slice.call(document.querySelectorAll(".nav-links a"));
+  var linkMap = {};
+  links.forEach(function (a) { linkMap[a.getAttribute("href").slice(1)] = a; });
+
+  var spy = new IntersectionObserver(function (entries) {
+    entries.forEach(function (en) {
+      if (en.isIntersecting && linkMap[en.target.id]) {
+        links.forEach(function (l) { l.classList.remove("active"); });
+        linkMap[en.target.id].classList.add("active");
+      }
+    });
+  }, { rootMargin: "-40% 0px -55% 0px" });
+
+  ["intro", "study", "hobby", "cat", "links"].forEach(function (id) {
+    var el = document.getElementById(id);
+    if (el) spy.observe(el);
+  });
+
+  /* ============ 6. 卡片鼠标光斑 ============ */
+  if (CAN_HOVER && !REDUCED) {
+    Array.prototype.forEach.call(document.querySelectorAll(".card"), function (c) {
+      c.addEventListener("mousemove", function (e) {
+        var r = c.getBoundingClientRect();
+        c.style.setProperty("--mx", (e.clientX - r.left) + "px");
+        c.style.setProperty("--my", (e.clientY - r.top) + "px");
+      });
+    });
+  }
+})();
+</script>
 
 </body>
 </html>
